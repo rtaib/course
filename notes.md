@@ -64,3 +64,18 @@ bye = if True then 7 else 8
 
 
 Haskell reads the code from the top and stops as soons as it finds a match
+
+Type classes are similar to interfaces. They can be used to "constrain" some input to a function
+class Ord a where
+  compare :: a -> a -> Ordering
+  data Ordering = EQ | LT | GT
+
+They can be instantiated for specific types e.g.
+instance Ord Banana where
+  compare :: Banana -> Banana -> Ordering
+This code can be avoided by deriving the Ord class
+
+Use them to constrain input e.g.
+(Eq a, Ord a) => [a] -> [a]
+
+The number of instances satisfying a class decreases as the class becomes more specific, but on the other hand there are more derived operations becoming available. For example, Ord is a subset of Eq (in terms of instances), but checking for equality is a subset of sorting.

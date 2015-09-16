@@ -17,7 +17,7 @@ import qualified Prelude as P
 --
 -- * The law of associative composition
 --   `∀a b c. ((.) <$> a <*> b <*> c) ≅ (a <*> (b <*> c))`
-class Functor f => Apply f where
+class Functor f => Apply f where -- You must be a Functor to be an Apply
   -- Pronounced apply.
   (<*>) ::
     f (a -> b)
@@ -35,8 +35,8 @@ instance Apply Id where
     Id (a -> b)
     -> Id a
     -> Id b
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance Id"
+  Id f <*> Id a =
+    Id (f a)
 
 -- | Implement @Apply@ instance for @List@.
 --
@@ -47,8 +47,9 @@ instance Apply List where
     List (a -> b)
     -> List a
     -> List b
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance List"
+  (<*>) fs as =
+--    flatMap (\f -> map f as) fs
+    flatMap (\f -> map f as) fs
 
 -- | Implement @Apply@ instance for @Optional@.
 --
@@ -65,8 +66,14 @@ instance Apply Optional where
     Optional (a -> b)
     -> Optional a
     -> Optional b
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance Optional"
+--  Empty <*> _ =
+--    Empty
+--  Full f <*> a =
+--    mapOptional f a
+-- OR
+  (<*>) fs as =
+    bindOptional (\f -> mapOptional f as) fs
+
 
 -- | Implement @Apply@ instance for reader.
 --
@@ -86,11 +93,12 @@ instance Apply Optional where
 -- 15
 instance Apply ((->) t) where
   (<*>) ::
-    ((->) t (a -> b))
+    ((->) t (a -> b)) -- OR  (t -> a -> b)
     -> ((->) t a)
     -> ((->) t b)
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance ((->) t)"
+  (f <*> g) a =
+    f a (g a)
+
 
 -- | Apply a binary function in the environment.
 --
@@ -117,8 +125,14 @@ lift2 ::
   -> f a
   -> f b
   -> f c
-lift2 =
-  error "todo: Course.Apply#lift2"
+lift2 f a b =
+  f <$> a <*> b
+
+
+
+-- >>> ((*) <*> (+2)) 3
+-- 15
+--  error "todo: Course.Apply#lift2"
 
 -- | Apply a ternary function in the environment.
 --
@@ -149,8 +163,8 @@ lift3 ::
   -> f b
   -> f c
   -> f d
-lift3 =
-  error "todo: Course.Apply#lift2"
+lift3 f a b c =
+  lift2 f a b <*> c
 
 -- | Apply a quaternary function in the environment.
 --
@@ -182,8 +196,8 @@ lift4 ::
   -> f c
   -> f d
   -> f e
-lift4 =
-  error "todo: Course.Apply#lift4"
+lift4 f a b c d =
+  lift3 f a b c <*> d
 
 -- | Sequence, discarding the value of the first argument.
 -- Pronounced, right apply.
@@ -209,7 +223,7 @@ lift4 =
   -> f b
   -> f b
 (*>) =
-  error "todo: Course.Apply#(*>)"
+  lift2 (flip const)
 
 -- | Sequence, discarding the value of the second argument.
 -- Pronounced, left apply.
@@ -235,7 +249,7 @@ lift4 =
   -> f a
   -> f b
 (<*) =
-  error "todo: Course.Apply#(<*)"
+  lift2 const
 
 -----------------------
 -- SUPPORT LIBRARIES --

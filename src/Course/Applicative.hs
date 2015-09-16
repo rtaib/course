@@ -46,8 +46,9 @@ class Apply f => Applicative f where
   (a -> b)
   -> f a
   -> f b
-(<$>) =
-  error "todo: Course.Applicative#(<$>)"
+(<$>) f a =
+  pure f <*> a
+
 
 -- | Insert into Id.
 --
@@ -57,7 +58,7 @@ instance Applicative Id where
     a
     -> Id a
   pure =
-    error "todo: Course.Applicative pure#instance Id"
+    Id
 
 -- | Insert into a List.
 --
@@ -66,8 +67,8 @@ instance Applicative List where
   pure ::
     a
     -> List a
-  pure =
-    error "todo: Course.Applicative pure#instance List"
+  pure a =
+    a:.Nil
 
 -- | Insert into an Optional.
 --
@@ -77,7 +78,7 @@ instance Applicative Optional where
     a
     -> Optional a
   pure =
-    error "todo: Course.Applicative pure#instance Optional"
+    Full
 
 -- | Insert into a constant function.
 --
@@ -87,7 +88,8 @@ instance Applicative ((->) t) where
     a
     -> ((->) t a)
   pure =
-    error "todo: Course.Applicative pure#((->) t)"
+    const
+
 
 -- | Sequences a list of structures to a structure of list.
 --
@@ -161,8 +163,14 @@ filtering ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering =
-  error "todo: Course.Applicative#filtering"
+filtering _ Nil =
+  pure Nil
+filtering f (h:.t) =
+--  undefined <$> f h <*> filtering f t
+--  (\b x -> if b then h:.x alse x) <$> f h <*> filtering f t
+--  (\b x -> if b then h:.x alse x) <$> f h <*> filtering f t
+-- But: lift2 f a b = f <$> a <*> b
+   (\b x -> if b then h:.x else x) <$> f h <*> filtering f t
 
 -----------------------
 -- SUPPORT LIBRARIES --
