@@ -63,7 +63,11 @@ the contents of c
 main ::
   IO ()
 main =
-  error "todo: Course.FileIO#main"
+  getArgs >>= \a -> case a of
+    Nil -> putStrLn "Argument missing"
+    h:._ -> run h
+
+-- error (show h)
 
 type FilePath =
   Chars
@@ -72,31 +76,49 @@ type FilePath =
 run ::
   Chars
   -> IO ()
-run =
-  error "todo: Course.FileIO#run"
+run fp =
+  readFile fp >>= \contents -> 
+  getFiles (lines contents) >>= \c -> -- c is a list of filenames and contents
+  printFiles c
+-- OR rewrite as: --
+-- do
+--   f <- readFile a
+--   c <- getFiles(lines f)
+--   printFiles c
 
 getFiles ::
   List FilePath
   -> IO (List (FilePath, Chars))
-getFiles =
-  error "todo: Course.FileIO#getFiles"
+getFiles fs =
+  sequence (getFile <$> fs)
 
 getFile ::
   FilePath
   -> IO (FilePath, Chars)
 getFile =
-  error "todo: Course.FileIO#getFile"
+--getFile f =
+--  readFile f >>= \c -> pure(f, c)
+-- OR:
+-- (\c -> (f,c)) <$> readFile f -- Use a pair instead of pure 
+-- (\c -> (,) f c) <$> readFile f
+-- ((,) f) <$> readFile f
+  lift2 (<$>) (,) readFile
 
 printFiles ::
   List (FilePath, Chars)
   -> IO ()
-printFiles =
-  error "todo: Course.FileIO#printFiles"
+printFiles x =
+  void (sequence ((\(p, c) -> printFile p c) <$> x))
+-- OR:
+--  void (sequence ((uncurry printFile) <$> x))
 
 printFile ::
   FilePath
   -> Chars
   -> IO ()
-printFile =
-  error "todo: Course.FileIO#printFile"
+printFile p c =
+  putStrLn ("===== " ++ p) *> -- Use an anonymous binding at the end 
+--  putStrLn ("Contents: " ++ c)
+  getChar >>= \thechar ->  -- How to get user inputs
+  putStrLn ("Contents: " ++ c ++ show' thechar) -- There is an error here, not sure why
 
