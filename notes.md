@@ -79,3 +79,24 @@ Use them to constrain input e.g.
 (Eq a, Ord a) => [a] -> [a]
 
 The number of instances satisfying a class decreases as the class becomes more specific, but on the other hand there are more derived operations becoming available. For example, Ord is a subset of Eq (in terms of instances), but checking for equality is a subset of sorting.
+
+Functor has signature * -> *  (i.e. type returns type)
+
+Pointfree (and pointful) can be used to factor in expressionss. Install using cabal: `sudo cabal install pointfree` then add `~/.cabal/bin` to the path, e.g. in `~/.bashrc`.
+
+Background on the reasoning can be found in SKI Combinator Calculus
+
+Hackage is a repository for Haskell libraries
+
+
+Haskell can be written similarly to declarative code, e.g. from Haxl:
+numCommonFriends x y =
+    length <$> (intersect <$> friendsOf x <*> friendsOf y)
+
+Becomes:
+
+numCommonFriends x y = do
+  fx <- friendsOf x
+  fy <- friendsOf y
+  return (length (intersect fx fy))
+  
